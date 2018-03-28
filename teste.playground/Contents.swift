@@ -3,28 +3,24 @@
 import UIKit
 import PlaygroundSupport
 
-func addMultipleSubviews(view : UIView, list : [UIView]) {
-    for i in list {
-        view.addSubview(i)
-    }
-}
-
-
-
-//func drawLine(_ p1 : CGPoint, _ p2 : CGPoint) -> [] {
-//
-//
-//
-//}
-
-
 class MyViewController : UIViewController {
     
     override func loadView() {
 
         let view = UIView()
         view.backgroundColor = .white
-
+        
+        // Creates the view for the texts
+        let upperView = UIView(frame: CGRect(x: 0, y: 0, width: 1024, height: 450))
+        upperView.backgroundColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
+        
+        // Creates the view for the graph
+        let lowerView = UIView(frame: CGRect(x: 0, y: 450, width: 1024, height: 318))
+        lowerView.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        
+        view.addSubview(upperView)
+        view.addSubview(lowerView)
+        
         // Defines the coordinates of the dots dict
         let coords = [
             "p1": (10, 10),
@@ -36,7 +32,7 @@ class MyViewController : UIViewController {
         // Calls the function to create the UIView dict
         let dots = createDotz(coords)
 
-        // Defines each dot neighbor
+        // Defines each dot's neighbor
         let neighbors = [
             "p1": ["p2","p3"],
             "p2": [],
@@ -47,16 +43,13 @@ class MyViewController : UIViewController {
         // Calls the function to create all paths
         let paths = createPaths(neighbors: neighbors, dots: dots)
         
-        
+        // Teste criando todos os pontos e paths
         for i in dots {
-            view.addSubview(i.value)
+            lowerView.addSubview(i.value)
         }
-        
-//        view.layer.addSublayer(shapeLayer)
         for i in paths {
             for j in i.value {
-                
-                view.layer.addSublayer(j.value)
+                lowerView.layer.addSublayer(j.value)
             }
         }
         
@@ -69,12 +62,12 @@ class MyViewController : UIViewController {
         
         var result = [String : UIView]()
         
-        for dot in list.keys {
-            let circulinho = UIView(frame: CGRect(x: list[dot]!.0, y: list[dot]!.1, width: 30, height: 30))
+        for dot in list {
+            let circulinho = UIView(frame: CGRect(x: dot.value.0, y: dot.value.1, width: 30, height: 30))
             circulinho.backgroundColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
             circulinho.layer.cornerRadius = circulinho.frame.width / 2
             
-            result[dot] = circulinho
+            result[dot.key] = circulinho
         }
         
         return result
@@ -93,7 +86,6 @@ class MyViewController : UIViewController {
                     let path = UIBezierPath()
                     path.move(to: dot.value.center)
                     path.addLine(to: dots[neighbor]!.center)
-                    print("\(dot.value.center), \(dots[neighbor]!.center)\n")
                     
                     let layer = CAShapeLayer()
                     layer.path = path.cgPath
@@ -115,8 +107,12 @@ class MyViewController : UIViewController {
     }
 }
 
+let controller = MyViewController()
+controller.preferredContentSize = CGSize(width: 1024, height: 768)
+
 // Present the view controller in the Live View window
-PlaygroundPage.current.liveView = MyViewController()
+PlaygroundPage.current.liveView = controller
+
 
 
 
