@@ -30,7 +30,14 @@ public class MyViewController : UIViewController {
             "p3": "vou pela estrada mais longa",
             "p4": "eoq"
         ],
-        "p2": [:]
+        "p2": [
+            "p5": "ALO",
+            "p6": "VISH"
+        ],
+        "p3": [:],
+        "p4": [:],
+        "p5": [:],
+        "p6": [:]
     ]
     
     // Defines the coordinates of each dot
@@ -38,7 +45,9 @@ public class MyViewController : UIViewController {
         "p1": (10, 10),
         "p2": (100,100),
         "p3": (30, 140),
-        "p4": (50 ,100)
+        "p4": (50 ,100),
+        "p5": (150,100),
+        "p6": (180,50)
     ]
     
     // Defines each dot's neighbor
@@ -46,10 +55,15 @@ public class MyViewController : UIViewController {
         "p1": ["p2","p3"],
         "p2": ["p4"],
         "p3": ["p4"],
-        "p4": []
+        "p4": ["p5","p6"],
+        "p5": [],
+        "p6": []
     ]
     
+    // Player's path
+    public var playerPath = ["p1"]
     
+    // Starts everything
     public var options = [String : [String : UIButton]]()
     public var paths = [String : [String : CAShapeLayer]]()
     public var dots = [String : UIView]()
@@ -68,6 +82,13 @@ public class MyViewController : UIViewController {
         CTFontManagerRegisterFontsForURL(furl, CTFontManagerScope.process, nil)
         let font = UIFont(name: "IndieFlower", size: 15)
         
+        
+        // Creates everything
+        self.options = createOptions(choices: self.choices, font: font!)
+        self.dots = createDotz(self.coords)
+        self.paths = createPaths(neighbors: self.neighbors, dots: self.dots)
+        
+        
         // Creates the view for the texts
         self.upperView.frame = CGRect(x: 0, y: 0, width: 640, height: 300)
         self.upperView.backgroundColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
@@ -79,7 +100,8 @@ public class MyViewController : UIViewController {
         view.addSubview(self.upperView)
         view.addSubview(self.lowerView)
         
-        // UPPER BODY
+        
+        // Configure upper body
         
         self.textBox.frame = CGRect(x: 10, y: 10, width: 620, height: 220)
         self.textBox.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
@@ -87,56 +109,45 @@ public class MyViewController : UIViewController {
         self.textBox.textColor = .white
         self.textBox.numberOfLines = 0
         self.textBox.textAlignment = .left
-        self.textBox.font = font!
         self.textBox.sizeToFit()
+        self.textBox.font = font!
+        
         
         self.choosingBox.frame = CGRect(x: 10, y: 230, width: 620, height: 50)
         self.choosingBox.backgroundColor = #colorLiteral(red: 0.5568627715, green: 0.3529411852, blue: 0.9686274529, alpha: 1)
         
-        self.options = createOptions(choices: self.choices, font: font!)
+        
         for i in self.options["p1"]! {
             choosingBox.addSubview(i.value)
         }
         
-        upperView.addSubview(textBox)
-        upperView.addSubview(choosingBox)
+        self.upperView.addSubview(textBox)
+        self.upperView.addSubview(choosingBox)
         
         
-        // LOWER BODY
+        // Configure lower body
 
-        // Calls the function to create the UIView dict
-        self.dots = createDotz(self.coords)
 
         // Calls the function to create all paths
-        self.paths = createPaths(neighbors: self.neighbors, dots: self.dots)
         
+//        changeView("p2")
+        // TIRA ISSO AQ DEPOIS CARAI
         // Teste criando todos os pontos e paths
         for i in self.dots {
-            lowerView.addSubview(i.value)
+            self.lowerView.addSubview(i.value)
         }
         for i in self.paths {
             for j in i.value {
-                lowerView.layer.addSublayer(j.value)
+                self.lowerView.layer.addSublayer(j.value)
             }
+        }
+        
+        for i in view.subviews {
+            print(i)
         }
         
         self.view = view
     }
-    
-    // Handles view changes
-    func changeView(_ dot : String) {
-        
-        UIView.animate(withDuration: 2, animations: {
-            self.textBox.alpha = 0.0
-        }, completion: {
-            (value: Bool) in
-            self.textBox.text = self.dotsTexts[dot]!
-            UIView.animate(withDuration: 2, animations: {
-                self.textBox.alpha = 1.0
-            })
-        })
-    }
-    
     
     // Creates the UIButtons for the options
     func createOptions(choices: [String : [String : String]], font: UIFont) -> [String : [String : UIButton]]{
@@ -180,12 +191,35 @@ public class MyViewController : UIViewController {
     @objc func nextText(sender : UIButton!) {
         switch(sender.tag) {
         case 2:
-            print("EOQ")
+            // a tag aponta pro proximo ponto ja, que vai ser displayed
+            changeView("p2")
         default:
             print("ALO")
         }
     }
     
+    // Handles view changes
+    func changeView(_ dot : String) {
+        
+        UIView.animate(withDuration: 1, animations: {
+            self.choosingBox.alpha = 0.0
+            self.textBox.alpha = 0.0
+        }, completion: {
+            (value: Bool) in
+            // Changes the text displayed
+            self.textBox.text = self.dotsTexts[dot]!
+            self.textBox.sizeToFit()
+            // Remove old options and add new ones
+            self.choosingBox.subviews.forEach { $0.removeFromSuperview() }
+            for v in self.options[dot]! {
+                self.choosingBox.addSubview(v.value)
+            }
+            UIView.animate(withDuration: 1, animations: {
+                self.textBox.alpha = 1.0
+                self.choosingBox.alpha = 1.0
+            })
+        })
+    }
     
     // Creates the dots UIView dict
     func createDotz(_ list : [String : (Int,Int)]) -> [String : UIView] {
