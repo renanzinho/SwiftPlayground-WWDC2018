@@ -11,8 +11,7 @@ class MyViewController : UIViewController {
         view.backgroundColor = .white
         
         // Import font
-//        let generalFont = UIFont(name: "TrebuchetMS", size: 15)
-        let ofurl = Bundle.main.url(forResource: "IndieFlower", withExtension: "ttf") as! CFURL
+        let ofurl = Bundle.main.url(forResource: "IndieFlower", withExtension: "ttf")! as CFURL
         CTFontManagerRegisterFontsForURL(ofurl, CTFontManagerScope.process, nil)
         let optionsFont = UIFont(name: "IndieFlower", size: 15)
         
@@ -61,30 +60,20 @@ class MyViewController : UIViewController {
         let choices = [
             "p1": [
                 "p2": "vou pela floresta",
-                "p3": "vou pela estrada mais longa",
-                "p4": "eoq"
+                "p3": "vou pela estrada mais longa"
+//                "p4": "eoq"
             ],
             "p2": [:]
         ]
         
-        let c1Label = UILabel(frame: CGRect(x: (620 / choices["p1"]!.count) * 0, y: 0, width: (620 / choices["p1"]!.count), height: 50))
-        c1Label.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
-        c1Label.text = choices["p1"]!["p2"]!
-        c1Label.textAlignment = .center
-        c1Label.numberOfLines = 0
-        c1Label.font = optionsFont!
-        
-        let c2Label = UILabel(frame: CGRect(x: (620 / choices["p1"]!.count) * 1, y: 0, width: (620 / choices["p1"]!.count), height: 50))
-        c2Label.backgroundColor = #colorLiteral(red: 0.2745098174, green: 0.4862745106, blue: 0.1411764771, alpha: 1)
-        c2Label.text = choices["p1"]!["p3"]!
-        c2Label.textAlignment = .center
-        c2Label.numberOfLines = 0
-        c2Label.font = optionsFont!
+        let op = createOptions(choices: choices, font: optionsFont!)
+        for i in op["p1"]! {
+            choosingBox.addSubview(i.value)
+        }
         
         upperView.addSubview(textBox)
         upperView.addSubview(choosingBox)
-        choosingBox.addSubview(c1Label)
-        choosingBox.addSubview(c2Label)
+        
         
         // LOWER BODY
         
@@ -132,10 +121,40 @@ class MyViewController : UIViewController {
         self.view = view
     }
     
-//    // Creates the UILabel for the options
-//    func createOptions(_ : [String : [String : String]]) -> [String : [String : UILabel]]{
-//        
-//    }
+    // Creates the UILabel for the options
+    func createOptions(choices: [String : [String : String]], font: UIFont) -> [String : [String : UILabel]]{
+        
+        var result = [String : [String : UILabel]]()
+        
+        for dot in choices {
+            var cont = 0
+            for choice in dot.value {
+                
+                let label = UILabel(frame: CGRect(x: (620 / dot.value.count) * cont, y: 0, width: (620 / dot.value.count), height: 50))
+                
+                label.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)     // Change later
+                label.layer.borderWidth = 2.0
+                label.layer.borderColor = UIColor.black.cgColor
+                label.text = choice.value
+                label.textAlignment = .center
+                label.numberOfLines = 0
+                label.font = font
+                
+                cont += 1
+                
+                if let _ = result[dot.key] {
+                    result[dot.key]![choice.key] = label
+                } else {
+                    result[dot.key] = [:]
+                    result[dot.key]![choice.key] = label
+                }
+                
+            }
+        }
+        
+        return result
+        
+    }
     
     
     // Creates the dots UIView dict
