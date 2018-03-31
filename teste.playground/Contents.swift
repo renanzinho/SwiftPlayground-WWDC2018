@@ -3,19 +3,19 @@
 import UIKit
 import PlaygroundSupport
 
-class MyViewController : UIViewController {
+var maxTag = -1
+
+public class MyViewController : UIViewController {
     
-    override func loadView() {
+    public override func loadView() {
 
         let view = UIView()
         view.backgroundColor = .white
         
         // Import font
-        let ofurl = Bundle.main.url(forResource: "IndieFlower", withExtension: "ttf")! as CFURL
-        CTFontManagerRegisterFontsForURL(ofurl, CTFontManagerScope.process, nil)
-        let optionsFont = UIFont(name: "IndieFlower", size: 15)
-        
-        let generalFont = UIFont(name: "TrebuchetMS", size: 15)
+        let furl = Bundle.main.url(forResource: "IndieFlower", withExtension: "ttf")! as CFURL
+        CTFontManagerRegisterFontsForURL(furl, CTFontManagerScope.process, nil)
+        let font = UIFont(name: "IndieFlower", size: 15)
         
         // Creates the view for the texts
         let upperView = UIView(frame: CGRect(x: 0, y: 0, width: 640, height: 300))
@@ -51,7 +51,7 @@ class MyViewController : UIViewController {
         textBox.textColor = .white
         textBox.numberOfLines = 0
         textBox.textAlignment = .left
-        textBox.font = generalFont!
+        textBox.font = font!
         
         
         let choosingBox = UIView(frame: CGRect(x: 10, y: 230, width: 620, height: 50))
@@ -60,13 +60,13 @@ class MyViewController : UIViewController {
         let choices = [
             "p1": [
                 "p2": "vou pela floresta",
-                "p3": "vou pela estrada mais longa"
-//                "p4": "eoq"
+                "p3": "vou pela estrada mais longa",
+                "p4": "eoq"
             ],
             "p2": [:]
         ]
         
-        let op = createOptions(choices: choices, font: optionsFont!)
+        let op = createOptions(choices: choices, font: font!)
         for i in op["p1"]! {
             choosingBox.addSubview(i.value)
         }
@@ -122,31 +122,33 @@ class MyViewController : UIViewController {
     }
     
     // Creates the UILabel for the options
-    func createOptions(choices: [String : [String : String]], font: UIFont) -> [String : [String : UILabel]]{
+    func createOptions(choices: [String : [String : String]], font: UIFont) -> [String : [String : UIButton]]{
         
-        var result = [String : [String : UILabel]]()
+        var result = [String : [String : UIButton]]()
         
         for dot in choices {
             var cont = 0
             for choice in dot.value {
                 
-                let label = UILabel(frame: CGRect(x: (620 / dot.value.count) * cont, y: 0, width: (620 / dot.value.count), height: 50))
-                
-                label.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)     // Change later
-                label.layer.borderWidth = 2.0
-                label.layer.borderColor = UIColor.black.cgColor
-                label.text = choice.value
-                label.textAlignment = .center
-                label.numberOfLines = 0
-                label.font = font
+                let btn = UIButton(frame: CGRect(x: (620 / dot.value.count) * cont, y: 0, width: (620 / dot.value.count), height: 50))
+                btn.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+                btn.layer.borderWidth = 2.0
+                btn.layer.borderColor = UIColor.black.cgColor
+                btn.setTitle(choice.value, for: .normal)
+                btn.titleLabel?.textAlignment = .center
+                btn.titleLabel?.numberOfLines = 0
+                btn.titleLabel?.font = font
+                btn.tag = Int(choice.key.dropFirst(1))!
+                maxTag = max(btn.tag, maxTag)
+                btn.addTarget(self, action: #selector(nextText), for: .touchUpInside)
                 
                 cont += 1
                 
                 if let _ = result[dot.key] {
-                    result[dot.key]![choice.key] = label
+                    result[dot.key]![choice.key] = btn
                 } else {
                     result[dot.key] = [:]
-                    result[dot.key]![choice.key] = label
+                    result[dot.key]![choice.key] = btn
                 }
                 
             }
@@ -154,6 +156,16 @@ class MyViewController : UIViewController {
         
         return result
         
+    }
+    // TODO - AJEITAR ESSA PORRA OS BOTAO E TAL
+    // Action of the button
+    @objc func nextText(sender : UIButton!) {
+        switch(sender.tag) {
+        case 2:
+            print("EOQ")
+        default:
+            break
+        }
     }
     
     
